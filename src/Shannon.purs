@@ -2,7 +2,7 @@ module Shannon where
 
 import Prelude
 
-import Shannon.Data (class IndexSchemaRow, type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
+import Shannon.Data (class DatabaseSchema, type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
 import Shannon.Indexed.Insert (insertRecord)
 import Type.Proxy (Proxy(..))
 
@@ -15,14 +15,14 @@ _name_ = Proxy :: Proxy "name"
 _foo_ = Proxy :: Proxy "foo"
 _bar_ = Proxy :: Proxy "bar"
 
-schema = Proxy :: Proxy Schema
+schema = Proxy :: Proxy MySchema
 
-type Schema =
+type MySchema =
   ( foo :: OutboundPrimaryKey NonIncrementing # WithIndex NotUnique (Index "id")
   , bar :: InboundPrimaryKey Incrementing (Index "id")
   )
 
-migration :: forall r. IndexSchemaRow r => Proxy r -> Unit
+migration :: forall r. DatabaseSchema r => Proxy r -> Unit
 migration _ = unit
 
 m :: Unit

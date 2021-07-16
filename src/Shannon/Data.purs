@@ -6,15 +6,15 @@ import Type.Function (FLIP)
 
 infixl 0 type FLIP as #
 
-data IndexSchema_
-foreign import data OutboundPrimaryKey :: Incrementing_ -> IndexSchema_
-foreign import data InboundPrimaryKey :: Incrementing_ -> Index_ -> IndexSchema_
-foreign import data WithIndex :: Uniqueness_ -> Index_ -> IndexSchema_ -> IndexSchema_
+data TableSchema_
+foreign import data OutboundPrimaryKey :: Incrementing_ -> TableSchema_
+foreign import data InboundPrimaryKey :: Incrementing_ -> Index_ -> TableSchema_
+foreign import data WithIndex :: Uniqueness_ -> Index_ -> TableSchema_ -> TableSchema_
 
-class IndexSchema (a :: IndexSchema_)
-instance outboundPrimaryKeyIndexSchema :: IndexSchema (OutboundPrimaryKey incr)
-instance inboundPrimaryKeyIndexSchema :: IndexSchema (InboundPrimaryKey incr indx)
-instance withIndexIndexSchema :: IndexSchema (WithIndex uniq indx schema)
+class TableSchema (a :: TableSchema_)
+instance outboundPrimaryKeyTableSchema :: TableSchema (OutboundPrimaryKey incr)
+instance inboundPrimaryKeyTableSchema :: TableSchema (InboundPrimaryKey incr indx)
+instance withIndexTableSchema :: TableSchema (WithIndex uniq indx schema)
 
 data Incrementing_
 foreign import data Incrementing :: Incrementing_
@@ -30,22 +30,22 @@ foreign import data CompoundIndex :: Symbol -> Index_ -> Index_
 
 --
 
-class IndexSchemaRow :: forall k. Row k -> Constraint
-class IndexSchemaRow row
+class DatabaseSchema :: forall k. Row k -> Constraint
+class DatabaseSchema row
 
-instance indexSchemaRow
-  :: ( RowToList row rowList, IndexSchemaRowList rowList )
-  => IndexSchemaRow row
+instance databaseSchema
+  :: ( RowToList row rowList, DatabaseSchemaRowList rowList )
+  => DatabaseSchema row
 
 --
 
-class IndexSchemaRowList :: forall k. RowList k -> Constraint
-class IndexSchemaRowList rowList
+class DatabaseSchemaRowList :: forall k. RowList k -> Constraint
+class DatabaseSchemaRowList rowList
 
-instance indexSchemaRowListCons
-  :: ( IndexSchemaRowList tail, IndexSchema v)
-  => IndexSchemaRowList (RowList.Cons k v tail)
+instance databaseSchemaRowListCons
+  :: ( DatabaseSchemaRowList tail, TableSchema v)
+  => DatabaseSchemaRowList (RowList.Cons k v tail)
 
-instance indexSchemaRowListNil :: IndexSchemaRowList RowList.Nil
+instance databaseSchemaRowListNil :: DatabaseSchemaRowList RowList.Nil
 
 --

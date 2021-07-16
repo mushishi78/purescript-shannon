@@ -4,31 +4,31 @@ import Prelude
 
 import Dexie.IndexedValue (class IndexedValue)
 import Prim.Row (class Cons) as Row
-import Shannon.Data (class IndexSchemaRow, InboundPrimaryKey, Incrementing, IndexSchema_, NonIncrementing, OutboundPrimaryKey, WithIndex)
+import Shannon.Data (class DatabaseSchema, InboundPrimaryKey, Incrementing, TableSchema_, NonIncrementing, OutboundPrimaryKey, WithIndex)
 
-class InsertKeyInIndexSchemaRow :: forall k. Row k -> Symbol -> Type -> Constraint
-class InsertKeyInIndexSchemaRow schemaRow tableName insertKey | schemaRow tableName -> insertKey
+class InsertKeyInDatabaseSchema :: forall k. Row k -> Symbol -> Type -> Constraint
+class InsertKeyInDatabaseSchema databaseSchema tableName insertKey | databaseSchema tableName -> insertKey
 
-instance findInsertKeyInIndexSchemaRow
-  :: ( IndexSchemaRow schemaRow
-     , Row.Cons tableName schema otherSchemas schemaRow
-     , InsertKeyInIndexSchema schema insertKey
+instance findInsertKeyInDatabaseSchema
+  :: ( DatabaseSchema databaseSchema
+     , Row.Cons tableName tableSchema otherSchemas databaseSchema
+     , InsertKeyInTableSchema tableSchema insertKey
      )
-  => InsertKeyInIndexSchemaRow schemaRow tableName insertKey
+  => InsertKeyInDatabaseSchema databaseSchema tableName insertKey
 
-class InsertKeyInIndexSchema :: IndexSchema_ -> Type -> Constraint
-class InsertKeyInIndexSchema schema insertKey | schema -> insertKey
+class InsertKeyInTableSchema :: TableSchema_ -> Type -> Constraint
+class InsertKeyInTableSchema tableSchema insertKey | tableSchema -> insertKey
 
-instance findInsertKeyInIndexSchema_OutboundIncrementing
-  :: InsertKeyInIndexSchema (OutboundPrimaryKey Incrementing) Int
+instance findInsertKeyInTableSchema_OutboundIncrementing
+  :: InsertKeyInTableSchema (OutboundPrimaryKey Incrementing) Int
 
-instance findInsertKeyInIndexSchema_OutboundNonIncrementing
+instance findInsertKeyInTableSchema_OutboundNonIncrementing
   :: (IndexedValue v)
-  => InsertKeyInIndexSchema (OutboundPrimaryKey NonIncrementing) v
+  => InsertKeyInTableSchema (OutboundPrimaryKey NonIncrementing) v
 
-instance findInsertKeyInIndexSchema_Inbound
-  :: InsertKeyInIndexSchema (InboundPrimaryKey incr index) Unit
+instance findInsertKeyInTableSchema_Inbound
+  :: InsertKeyInTableSchema (InboundPrimaryKey incr index) Unit
 
-instance findInsertKeyInIndexSchema_Recursing
-  :: (InsertKeyInIndexSchema tail insertKey)
-  => InsertKeyInIndexSchema (WithIndex uniq indx tail) insertKey
+instance findInsertKeyInTableSchema_Recursing
+  :: (InsertKeyInTableSchema tail insertKey)
+  => InsertKeyInTableSchema (WithIndex uniq indx tail) insertKey
