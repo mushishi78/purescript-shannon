@@ -99,6 +99,27 @@ in  upstream
 -------------------------------
 -}
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.14.1-20210506/packages.dhall sha256:d199e142515f9cc15838d8e6d724a98cd0ca776ceb426b7b36e841311643e3ef
+      https://github.com/purescript/package-sets/releases/download/psc-0.14.1-20210613/packages.dhall sha256:5f10380b3ca7d3a32ea5c2b7535e4814a5e3f3590c70692f76e596d6ab0687b3
 
 in  upstream
+  with dexie =
+      { dependencies =
+          [ "aff"
+          , "control"
+          , "effect"
+          , "either"
+          , "exceptions"
+          , "foreign"
+          , "foreign-object"
+          , "maybe"
+          , "nullable"
+          , "prelude"
+          , "psci-support"
+          , "transformers"
+          , "tuples"
+          ]
+      , repo =
+          "https://github.com/mushishi78/purescript-dexie.git"
+      , version =
+          "v0.1.2"
+      }

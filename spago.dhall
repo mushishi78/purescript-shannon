@@ -1,8 +1,5 @@
 { name = "shannon"
-, dependencies =
-  [ "effect"
-  , "prelude"
-  ]
+, dependencies = [ "dexie", "prelude" ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
 , license = "MIT"
