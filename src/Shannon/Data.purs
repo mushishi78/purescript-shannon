@@ -2,6 +2,9 @@ module Shannon.Data where
 
 import Prim.RowList (Cons, Nil) as RowList
 import Prim.RowList (class RowToList, RowList)
+import Type.Function (FLIP)
+
+infixl 0 type FLIP as #
 
 data IndexSchema_
 foreign import data OutboundPrimaryKey :: Incrementing_ -> IndexSchema_
