@@ -4,7 +4,8 @@ import Prelude
 
 import Shannon.Data (type (#), Database, InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
 import Shannon.Insert (insertRecord)
-import Type.Data.Peano (D0)
+import Shannon.Migrate (migrate, Migration(..))
+import Type.Data.Peano (D0, D1)
 import Type.Proxy (Proxy(..))
 
 _foo_ = Proxy :: Proxy "foo"
@@ -17,6 +18,8 @@ type MySchema =
 
 db :: Database D0 MySchema
 db = { version: Proxy, schema: Proxy }
+
+u = migrate db (Migration Proxy :: Migration D1 ( quiz :: OutboundPrimaryKey Incrementing ))
 
 i1 = insertRecord db _foo_ 1 { id: "name" }
 i2 = insertRecord db _bar_ unit { id: 1 }
