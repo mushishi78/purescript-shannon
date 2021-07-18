@@ -2,14 +2,18 @@ module Shannon.Data where
 
 import Prim.RowList (Cons, Nil) as RowList
 import Prim.RowList (class RowToList, RowList)
+import Type.Data.Peano.Nat (class IsNat, Nat)
 import Type.Function (FLIP)
 import Type.Proxy (Proxy)
 
 infixl 0 type FLIP as #
 
-type Database :: forall k. Row k -> Type
-type Database databaseSchema =
-    { schema :: DatabaseSchema databaseSchema => Proxy databaseSchema
+type Database :: forall k. Nat -> Row k -> Type
+type Database version databaseSchema =
+    IsNat version =>
+    DatabaseSchema databaseSchema =>
+    { version :: Proxy version
+    , schema :: Proxy databaseSchema
     }
 
 --
