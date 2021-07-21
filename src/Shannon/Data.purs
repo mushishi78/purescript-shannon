@@ -1,21 +1,19 @@
 module Shannon.Data where
 
+import Prelude
+
 import Prim.RowList (Cons, Nil) as RowList
 import Prim.RowList (class RowToList, RowList)
-import Type.Data.Peano.Nat (class IsNat, Nat)
 import Type.Function (FLIP)
-import Type.Proxy (Proxy)
 
 infixl 0 type FLIP as #
 
-type Database :: forall k. Nat -> Row k -> Type
-type Database version databaseSchema =
-    IsNat version =>
-    DatabaseSchema databaseSchema =>
-    { version :: Proxy version
-    , schema :: Proxy databaseSchema
+data Database :: forall k. Row k -> Type
+data Database databaseSchema = Database (
+  DatabaseSchema databaseSchema =>
+    { mappings :: Unit
     }
-
+  )
 --
 
 class DatabaseSchema :: forall k. Row k -> Constraint
@@ -59,3 +57,4 @@ foreign import data NotUnique :: Uniqueness_
 data Index_
 foreign import data Index :: Symbol -> Index_
 foreign import data CompoundIndex :: Symbol -> Index_ -> Index_
+
