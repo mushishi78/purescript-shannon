@@ -1,5 +1,13 @@
 { name = "shannon"
-, dependencies = [ "dexie", "prelude", "typelevel-peano", "typelevel-prelude" ]
+, dependencies =
+  [ "dexie"
+  , "foreign-object"
+  , "maybe"
+  , "nonempty"
+  , "prelude"
+  , "typelevel-peano"
+  , "typelevel-prelude"
+  ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
 , license = "MIT"
