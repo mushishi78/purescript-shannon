@@ -42,10 +42,11 @@ foreign import data OutboundPrimaryKey :: Incrementing_ -> TableSchema_
 foreign import data InboundPrimaryKey :: Incrementing_ -> Index_ -> TableSchema_
 foreign import data WithIndex :: Uniqueness_ -> Index_ -> TableSchema_ -> TableSchema_
 
-class TableSchema (a :: TableSchema_)
-instance outboundPrimaryKeyTableSchema :: TableSchema (OutboundPrimaryKey incr)
-instance inboundPrimaryKeyTableSchema :: TableSchema (InboundPrimaryKey incr indx)
-instance withIndexTableSchema :: TableSchema (WithIndex uniq indx schema)
+class TableSchema (ts :: TableSchema_)
+instance tableSchema_OutboundPrimaryKey :: TableSchema (OutboundPrimaryKey incr)
+instance tableSchema_InboundPrimaryKey_Incrementing :: TableSchema (InboundPrimaryKey Incrementing (Index s))
+instance tableSchema_InboundPrimaryKey_NonIncrementing :: TableSchema (InboundPrimaryKey NonIncrementing indx)
+instance tableSchema_WithIndex :: TableSchema (WithIndex uniq indx schema)
 
 data Incrementing_
 foreign import data Incrementing :: Incrementing_
