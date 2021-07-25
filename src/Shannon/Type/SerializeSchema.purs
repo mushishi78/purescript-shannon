@@ -3,8 +3,42 @@ module Shannon.Type.SerializeSchema where
 import Prelude
 
 import Data.Symbol (class IsSymbol, reflectSymbol)
+import Foreign.Object (Object)
+import Foreign.Object as Object
+import Prim.RowList (Cons, Nil) as RowList
+import Prim.RowList (class RowToList, RowList)
 import Shannon.Data (CompoundIndex, InboundPrimaryKey, Incrementing, Incrementing_, Index, Index_, NonIncrementing, NotUnique, OutboundPrimaryKey, TableSchema_, Unique, Uniqueness_, WithIndex)
 import Type.Proxy (Proxy(..))
+
+class SerializeDatabaseSchema :: forall r. Row r -> Constraint
+class SerializeDatabaseSchema databaseSchema where
+    serializeDatabaseSchema :: Proxy databaseSchema -> Object String
+
+instance serializeDatabaseSchemaRow
+    :: ( RowToList row rowList, SerializeDatabaseSchemaRowList rowList )
+    => SerializeDatabaseSchema row where
+  serializeDatabaseSchema _ = serializeDatabaseSchemaRowList (Proxy :: Proxy rowList)
+
+--
+
+class SerializeDatabaseSchemaRowList :: forall r. RowList r -> Constraint
+class SerializeDatabaseSchemaRowList databaseSchema where
+    serializeDatabaseSchemaRowList :: Proxy databaseSchema -> Object String
+
+instance serializeDatabaseSchemaRowList_Cons
+    :: ( IsSymbol k, SerializeTableSchema v, SerializeDatabaseSchemaRowList tail )
+    => SerializeDatabaseSchemaRowList (RowList.Cons k v tail) where
+  serializeDatabaseSchemaRowList _ =
+    Object.insert
+        (reflectSymbol (Proxy :: Proxy k))
+        (serializeTableSchema (Proxy :: Proxy v))
+        (serializeDatabaseSchemaRowList (Proxy :: Proxy tail))
+
+else instance serializeDatabaseSchemaRowList_Nil
+    :: SerializeDatabaseSchemaRowList RowList.Nil where
+  serializeDatabaseSchemaRowList _ = Object.empty
+
+--
 
 class SerializeTableSchema (tableSchema :: TableSchema_) where
   serializeTableSchema :: Proxy tableSchema -> String

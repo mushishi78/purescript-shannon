@@ -2,8 +2,9 @@ module Test.Shannon.Type.SerializeSchema  where
 
 import Prelude
 
-import Shannon.Data (compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound, unique, withIndex)
-import Shannon.Type.SerializeSchema (serializeTableSchema)
+import Foreign.Object as Object
+import Shannon.Data (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, OutboundPrimaryKey, Unique, WithIndex, compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound, unique, withIndex)
+import Shannon.Type.SerializeSchema (serializeDatabaseSchema, serializeTableSchema)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import Type.Proxy (Proxy(..))
@@ -63,3 +64,15 @@ serializeSchemaTests = suite "serializeSchema" do
             # withIndex notUnique (index _id_ # compoundIndex _name_ # compoundIndex _age_)
             # withIndex unique (index _height_ # compoundIndex _parent_)
     Assert.shouldEqual (serializeTableSchema tableSchema) "id, [id+name+age], &[height+parent]"
+
+  test "serializes a database schema" do
+    let
+        databaseSchema :: Proxy
+            ( foo :: OutboundPrimaryKey Incrementing # WithIndex Unique (Index "age")
+            , bar :: InboundPrimaryKey NonIncrementing (Index "id")
+            )
+        databaseSchema = Proxy
+
+        expected = Object.singleton "foo" "++, &age" # Object.insert "bar" "id"
+
+    Assert.shouldEqual (serializeDatabaseSchema databaseSchema) expected
