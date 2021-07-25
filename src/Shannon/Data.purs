@@ -30,7 +30,7 @@ class DatabaseSchemaRowList :: forall k. RowList k -> Constraint
 class DatabaseSchemaRowList rowList
 
 instance databaseSchemaRowListCons
-  :: ( DatabaseSchemaRowList tail, TableSchema v)
+  :: ( DatabaseSchemaRowList tail, TableSchema v )
   => DatabaseSchemaRowList (RowList.Cons k v tail)
 
 instance databaseSchemaRowListNil :: DatabaseSchemaRowList RowList.Nil
