@@ -15,6 +15,11 @@ instance tableSchema_InboundPrimaryKey_Incrementing :: TableSchema (InboundPrima
 instance tableSchema_InboundPrimaryKey_NonIncrementing :: TableSchema (InboundPrimaryKey NonIncrementing indx)
 instance tableSchema_WithIndex :: TableSchema (WithIndex uniq indx schema)
 
+class TableSchemaCons :: Uniqueness_ -> Index_ -> TableSchema_ -> TableSchema_ -> Constraint
+class TableSchemaCons uniq indx before after | uniq indx before -> after
+
+instance tableSchemaCons :: TableSchemaCons uniq indx schema (WithIndex uniq indx schema)
+
 data Incrementing_
 foreign import data Incrementing :: Incrementing_
 foreign import data NonIncrementing :: Incrementing_

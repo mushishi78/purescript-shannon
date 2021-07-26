@@ -2,6 +2,7 @@ module Shannon.Migration where
 
 import Prelude
 
+import Data.Maybe (Maybe(..))
 import Data.NonEmpty (singleton) as NonEmpty
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Foreign.Object as Object
@@ -12,7 +13,7 @@ import Shannon.Data.DatabaseSchema (class DatabaseSchema)
 import Shannon.Data.Migration (Migration(..))
 import Shannon.Data.MigrationStep as MigrationStep
 import Shannon.Data.MigrationSteps as MigrationSteps
-import Shannon.Data.TableSchema (TableSchema_)
+import Shannon.Data.TableSchema (class TableSchemaCons)
 import Shannon.Symbol (_steps_, _stores_)
 import Shannon.Type.SerializeSchema (class SerializeTableSchema, serializeTableSchema)
 import Type.Data.Peano.Nat (class CompareNat, class IsNat, D0, reflectNat)
@@ -32,7 +33,7 @@ newVersion _ (Migration m) = Migration $ Record.modify _steps_ (MigrationSteps.c
     newStep = MigrationStep.empty $ reflectNat $ (Proxy :: Proxy v2)
 
 addTable ::
-  forall version currentSchema tableName (tableSchema :: TableSchema_) mergedSchema.
+  forall version currentSchema tableName tableSchema mergedSchema.
   IsSymbol tableName =>
   Lacks tableName currentSchema =>
   Cons tableName tableSchema currentSchema mergedSchema =>
@@ -45,3 +46,27 @@ addTable tableName tableSchema (Migration m) = Migration $ updateSteps m
     updateStores = Object.insert
       (reflectSymbol tableName)
       (serializeTableSchema tableSchema)
+
+addIndex ::
+  forall
+    version
+    previousDatabaseSchema
+    currentDatabaseSchema
+    newDatabaseSchema
+    tableName
+    currentTableSchema
+    newTableSchema
+    uniqueness
+    index.
+  IsSymbol tableName =>
+  Cons tableName currentTableSchema previousDatabaseSchema currentDatabaseSchema =>
+  Cons tableName newTableSchema previousDatabaseSchema newDatabaseSchema =>
+  DatabaseSchema currentDatabaseSchema =>
+  TableSchemaCons uniqueness index currentTableSchema newTableSchema =>
+  SerializeTableSchema newTableSchema =>
+  Proxy tableName -> Proxy uniqueness -> Proxy index -> Migration version currentDatabaseSchema -> Migration version newDatabaseSchema
+addIndex tableName _ _ (Migration m) = Migration $ updateSteps m
+  where
+    updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
+    updateStores = Object.update updateStore (reflectSymbol tableName)
+    updateStore = const $ Just $ serializeTableSchema (Proxy :: Proxy newTableSchema)
