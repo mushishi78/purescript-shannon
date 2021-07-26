@@ -7,7 +7,7 @@ import Foreign.Object (Object)
 import Foreign.Object as Object
 import Prim.RowList (Cons, Nil) as RowList
 import Prim.RowList (class RowToList, RowList)
-import Shannon.Data (CompoundIndex, InboundPrimaryKey, Incrementing, Incrementing_, Index, Index_, NonIncrementing, NotUnique, OutboundPrimaryKey, TableSchema_, Unique, Uniqueness_, WithIndex)
+import Shannon.Data.TableSchema (CompoundIndex, InboundPrimaryKey, Incrementing, Incrementing_, Index, Index_, NonIncrementing, NotUnique, OutboundPrimaryKey, TableSchema_, Unique, Uniqueness_, WithIndex)
 import Type.Proxy (Proxy(..))
 
 class SerializeDatabaseSchema :: forall r. Row r -> Constraint

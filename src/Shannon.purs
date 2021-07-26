@@ -2,7 +2,10 @@ module Shannon where
 
 import Prelude
 
-import Shannon.Data (type (#), Database(..), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex, inbound, incrementing, nonIncrementing, outbound, index, Migration)
+import Shannon.Data.Database (Database(..))
+import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
+import Shannon.Data.Proxy (inbound, incrementing, nonIncrementing, outbound, index)
+import Shannon.Data.Migration (Migration)
 import Shannon.Insert (insertRecord)
 import Shannon.Migration (defineMigration, newVersion, addTable)
 import Type.Data.Peano (D1, d1)

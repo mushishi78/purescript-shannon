@@ -5,7 +5,7 @@ import Prelude
 import Data.Symbol (class IsSymbol)
 import Dexie.Promise (Promise)
 import Dexie.Promise as Promise
-import Shannon.Data (Database)
+import Shannon.Data.Database (Database)
 import Shannon.Type.InsertKey (class InsertKeyInDatabaseSchema)
 import Type.Proxy (Proxy)
 

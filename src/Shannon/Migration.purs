@@ -3,15 +3,18 @@ module Shannon.Migration where
 import Prelude
 
 import Data.NonEmpty (singleton) as NonEmpty
-import Data.Symbol (class IsSymbol)
+import Data.Symbol (class IsSymbol, reflectSymbol)
+import Foreign.Object as Object
 import Prim.Ordering (LT)
 import Prim.Row (class Cons, class Lacks)
 import Record as Record
-import Shannon.Data (class DatabaseSchema, TableSchema_, Migration(..))
-import Shannon.MigrationStep as MigrationStep
-import Shannon.MigrationSteps as MigrationSteps
-import Shannon.Symbol (_steps_)
-import Shannon.Type.SerializeSchema (class SerializeTableSchema)
+import Shannon.Data.DatabaseSchema (class DatabaseSchema)
+import Shannon.Data.Migration (Migration(..))
+import Shannon.Data.MigrationStep as MigrationStep
+import Shannon.Data.MigrationSteps as MigrationSteps
+import Shannon.Data.TableSchema (TableSchema_)
+import Shannon.Symbol (_steps_, _stores_)
+import Shannon.Type.SerializeSchema (class SerializeTableSchema, serializeTableSchema)
 import Type.Data.Peano.Nat (class CompareNat, class IsNat, D0, reflectNat)
 import Type.Proxy (Proxy(..))
 
@@ -38,4 +41,7 @@ addTable ::
   Proxy tableName -> Proxy tableSchema -> Migration version currentSchema -> Migration version mergedSchema
 addTable tableName tableSchema (Migration m) = Migration $ updateSteps m
   where
-    updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ MigrationStep.addToStores tableName tableSchema
+    updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
+    updateStores = Object.insert
+      (reflectSymbol tableName)
+      (serializeTableSchema tableSchema)

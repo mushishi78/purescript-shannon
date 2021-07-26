@@ -3,7 +3,8 @@ module Test.Shannon.Type.SerializeSchema  where
 import Prelude
 
 import Foreign.Object as Object
-import Shannon.Data (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, OutboundPrimaryKey, Unique, WithIndex, compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound, unique, withIndex)
+import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, OutboundPrimaryKey, Unique, WithIndex)
+import Shannon.Data.Proxy (compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound, unique, withIndex)
 import Shannon.Type.SerializeSchema (serializeDatabaseSchema, serializeTableSchema)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert

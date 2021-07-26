@@ -1,8 +1,10 @@
-module Shannon.MigrationSteps where
+module Shannon.Data.MigrationSteps where
 
-import Data.Array ((:))
 import Data.NonEmpty (NonEmpty, (:|))
-import Shannon.Data (MigrationStep, MigrationSteps)
+import Data.Array ((:))
+import Shannon.Data.MigrationStep (MigrationStep)
+
+type MigrationSteps = NonEmpty Array MigrationStep
 
 mapHead :: forall m a. (a -> a) -> NonEmpty m a -> NonEmpty m a
 mapHead fn (head :| tail) = (fn head) :| tail

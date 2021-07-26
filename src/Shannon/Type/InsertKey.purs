@@ -4,7 +4,8 @@ import Prelude
 
 import Dexie.IndexedValue (class IndexedValue)
 import Prim.Row (class Cons) as Row
-import Shannon.Data (class DatabaseSchema, InboundPrimaryKey, Incrementing, TableSchema_, NonIncrementing, OutboundPrimaryKey, WithIndex)
+import Shannon.Data.DatabaseSchema (class DatabaseSchema)
+import Shannon.Data.TableSchema (InboundPrimaryKey, Incrementing, TableSchema_, NonIncrementing, OutboundPrimaryKey, WithIndex)
 
 class InsertKeyInDatabaseSchema :: forall k. Row k -> Symbol -> Type -> Constraint
 class InsertKeyInDatabaseSchema databaseSchema tableName insertKey | databaseSchema tableName -> insertKey
