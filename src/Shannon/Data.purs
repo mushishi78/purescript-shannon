@@ -2,8 +2,13 @@ module Shannon.Data where
 
 import Prelude
 
+import Data.Maybe (Maybe)
+import Data.NonEmpty (NonEmpty)
+import Dexie.Promise (Promise)
+import Foreign.Object (Object)
 import Prim.RowList (Cons, Nil) as RowList
 import Prim.RowList (class RowToList, RowList)
+import Type.Data.Peano (class IsNat, Nat)
 import Type.Function (FLIP)
 import Type.Proxy (Proxy(..))
 
@@ -15,6 +20,7 @@ data Database databaseSchema = Database (
     { mappings :: Unit
     }
   )
+
 --
 
 class DatabaseSchema :: forall k. Row k -> Constraint
@@ -80,3 +86,22 @@ index _ = Proxy
 
 compoundIndex :: forall sym indx. Proxy sym -> Proxy indx -> Proxy (CompoundIndex sym indx)
 compoundIndex _ _ = Proxy
+
+--
+
+data Migration :: forall k. Nat -> Row k -> Type
+data Migration version databaseSchema = Migration (
+  IsNat version =>
+  DatabaseSchema databaseSchema =>
+    { dbName :: String
+    , steps :: MigrationSteps
+    }
+  )
+
+type MigrationStep =
+  { version :: Int
+  , stores :: Object String
+  , upgrade :: Maybe (Promise Unit)
+  }
+
+type MigrationSteps = NonEmpty Array MigrationStep

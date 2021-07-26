@@ -1,10 +1,12 @@
 { name = "shannon"
 , dependencies =
-  [ "dexie"
+  [ "arrays"
+  , "dexie"
   , "foreign-object"
   , "maybe"
   , "nonempty"
   , "prelude"
+  , "record"
   , "typelevel-peano"
   , "typelevel-prelude"
   ]
