@@ -7,7 +7,7 @@ import Data.NonEmpty (singleton) as NonEmpty
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Foreign.Object as Object
 import Prim.Ordering (LT)
-import Prim.Row (class Cons)
+import Prim.Row (class Cons, class Nub)
 import Record as Record
 import Shannon.Data.DatabaseSchema (class DatabaseSchema)
 import Shannon.Data.Migration (Migration(..))
@@ -34,13 +34,14 @@ newVersion _ (Migration m) = Migration $ Record.modify _steps_ (MigrationSteps.c
     newStep = MigrationStep.empty $ reflectNat $ (Proxy :: Proxy v2)
 
 addTable ::
-  forall tableName tableSchema version currentSchema mergedSchema.
+  forall tableName tableSchema version currentSchema mergedSchema mergedNubbedSchema.
   IsSymbol tableName =>
   Cons tableName tableSchema currentSchema mergedSchema =>
+  Nub mergedSchema mergedNubbedSchema =>
   DatabaseSchema currentSchema =>
   SerializeTableSchema tableSchema =>
   MustNotHaveTable tableName currentSchema =>
-  Proxy tableName -> Proxy tableSchema -> Migration version currentSchema -> Migration version mergedSchema
+  Proxy tableName -> Proxy tableSchema -> Migration version currentSchema -> Migration version mergedNubbedSchema
 addTable tableName tableSchema (Migration m) = Migration $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
