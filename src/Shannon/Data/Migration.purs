@@ -8,8 +8,21 @@ newtype Migration :: forall k. Nat -> Row k -> Type
 newtype Migration version databaseSchema = Migration (
   IsNat version =>
   DatabaseSchema databaseSchema =>
-    { dbName :: String
-    , steps :: MigrationSteps
-    }
+    MigrationRecord
   )
 
+type MigrationRecord = { dbName :: String, steps :: MigrationSteps }
+
+getDBName ::
+  forall version databaseSchema.
+  IsNat version =>
+  DatabaseSchema databaseSchema =>
+  Migration version databaseSchema -> String
+getDBName (Migration m) = m.dbName
+
+getSteps ::
+  forall version databaseSchema.
+  IsNat version =>
+  DatabaseSchema databaseSchema =>
+  Migration version databaseSchema -> MigrationSteps
+getSteps (Migration m) = m.steps
