@@ -21,7 +21,7 @@ import Type.Data.Peano.Nat (class CompareNat, class IsNat, D0, reflectNat)
 import Type.Proxy (Proxy(..))
 
 defineMigration :: String -> Migration D0 ()
-defineMigration dbName = Migration { dbName, steps: NonEmpty.singleton (MigrationStep.empty 0) }
+defineMigration dbName = Migration { dbName, steps: MigrationSteps.empty }
 
 newVersion ::
   forall v1 v2 databaseSchema proxy.
