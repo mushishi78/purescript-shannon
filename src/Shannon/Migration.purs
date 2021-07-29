@@ -2,8 +2,6 @@ module Shannon.Migration where
 
 import Prelude
 
-import Data.Maybe (Maybe(..))
-import Data.NonEmpty (singleton) as NonEmpty
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Foreign.Object as Object
 import Prim.Ordering (LT)
@@ -70,5 +68,5 @@ addIndex ::
 addIndex tableName _ _ (Migration m) = Migration $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
-    updateStores = Object.update updateStore (reflectSymbol tableName)
-    updateStore = const $ Just $ serializeTableSchema (Proxy :: Proxy newTableSchema)
+    updateStores = Object.insert (reflectSymbol tableName) newTableSchema
+    newTableSchema = serializeTableSchema (Proxy :: Proxy newTableSchema)
