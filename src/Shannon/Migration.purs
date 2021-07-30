@@ -15,6 +15,7 @@ import Shannon.Data.TableSchema (class TableSchemaCons)
 import Shannon.Symbol (_steps_, _stores_)
 import Shannon.Type.MustNotHaveTable (class MustNotHaveTable)
 import Shannon.Type.SerializeSchema (class SerializeTableSchema, serializeTableSchema)
+import Shannon.Type.TableSchemaWithoutIndex (class TableSchemaWithoutIndex)
 import Type.Data.Peano.Nat (class CompareNat, class IsNat, D0, reflectNat)
 import Type.Proxy (Proxy(..))
 
@@ -66,6 +67,29 @@ addIndex ::
   SerializeTableSchema newTableSchema =>
   Proxy tableName -> Proxy uniqueness -> Proxy index -> Migration version currentDatabaseSchema -> Migration version newDatabaseSchema
 addIndex tableName _ _ (Migration m) = Migration $ updateSteps m
+  where
+    updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
+    updateStores = Object.insert (reflectSymbol tableName) newTableSchema
+    newTableSchema = serializeTableSchema (Proxy :: Proxy newTableSchema)
+
+removeIndex ::
+  forall
+    version
+    previousDatabaseSchema
+    currentDatabaseSchema
+    newDatabaseSchema
+    tableName
+    currentTableSchema
+    newTableSchema
+    index.
+  IsSymbol tableName =>
+  Cons tableName currentTableSchema previousDatabaseSchema currentDatabaseSchema =>
+  Cons tableName newTableSchema previousDatabaseSchema newDatabaseSchema =>
+  DatabaseSchema currentDatabaseSchema =>
+  TableSchemaWithoutIndex index currentTableSchema newTableSchema =>
+  SerializeTableSchema newTableSchema =>
+  Proxy tableName -> Proxy index -> Migration version currentDatabaseSchema -> Migration version newDatabaseSchema
+removeIndex tableName _ (Migration m) = Migration $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) newTableSchema

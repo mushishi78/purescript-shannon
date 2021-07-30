@@ -6,8 +6,8 @@ import Data.Array as Array
 import Data.NonEmpty as NonEmpty
 import Foreign.Object as Object
 import Shannon.Data.Migration (getDBName, getSteps)
-import Shannon.Data.Proxy (inbound, incrementing, index, nonIncrementing, notUnique, outbound)
-import Shannon.Migration (addIndex, addTable, defineMigration, newVersion)
+import Shannon.Data.Proxy (compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound)
+import Shannon.Migration (addIndex, addTable, defineMigration, newVersion, removeIndex)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import Type.Data.Peano (d1, d5)
@@ -68,4 +68,37 @@ migrationTests = suite "migration" do
     Assert.shouldEqual (getStores steps) $
       [ Object.singleton "foo" "++" # Object.insert "bar" "id"
       , Object.singleton "foo" "++, age"
+      ]
+
+  test "can remove an index from the end of a table schema" do
+    let
+      steps = NonEmpty.oneOf $ getSteps migration
+      migration = defineMigration "mydb"
+        # addTable _foo_ (outbound incrementing)
+        # addTable _bar_ (inbound nonIncrementing (index _id_))
+        # addIndex _foo_ notUnique (index _age_)
+        # newVersion d1
+        # removeIndex _foo_ (index _age_)
+
+    Assert.shouldEqual (getVersions steps) [0, 1]
+    Assert.shouldEqual (getStores steps) $
+      [ Object.singleton "foo" "++, age" # Object.insert "bar" "id"
+      , Object.singleton "foo" "++"
+      ]
+
+  test "can remove an index from the middle of a table schema" do
+    let
+      steps = NonEmpty.oneOf $ getSteps migration
+      migration = defineMigration "mydb"
+        # addTable _foo_ (outbound incrementing)
+        # addTable _bar_ (inbound nonIncrementing (index _id_))
+        # addIndex _foo_ notUnique (index _age_)
+        # addIndex _foo_ notUnique (compoundIndex _id_ $ index _age_)
+        # newVersion d1
+        # removeIndex _foo_ (index _age_)
+
+    Assert.shouldEqual (getVersions steps) [0, 1]
+    Assert.shouldEqual (getStores steps) $
+      [ Object.singleton "foo" "++, age, [age+id]" # Object.insert "bar" "id"
+      , Object.singleton "foo" "++, [age+id]"
       ]
