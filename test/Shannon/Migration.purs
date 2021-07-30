@@ -8,7 +8,7 @@ import Data.NonEmpty as NonEmpty
 import Foreign.Object as Object
 import Shannon.Data.Migration (getDBName, getSteps)
 import Shannon.Data.Proxy (compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound)
-import Shannon.Migration (addIndex, addTable, defineMigration, newVersion, removeIndex)
+import Shannon.Migration (addIndex, addTable, defineMigration, newVersion, removeIndex, removeTable)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import Type.Data.Peano (d1, d5)
@@ -104,4 +104,19 @@ migrationTests = suite "migration" do
     Assert.shouldEqual (getStores steps) $
       [ Object.singleton "foo" (Just "++, age, [age+id]") # Object.insert "bar" (Just "id")
       , Object.singleton "foo" (Just "++, [age+id]")
+      ]
+
+  test "can remove a table" do
+    let
+      steps = NonEmpty.oneOf $ getSteps migration
+      migration = defineMigration "mydb"
+        # addTable _foo_ (outbound incrementing)
+        # addTable _bar_ (inbound nonIncrementing (index _id_))
+        # newVersion d1
+        # removeTable _foo_
+
+    Assert.shouldEqual (getVersions steps) [0, 1]
+    Assert.shouldEqual (getStores steps) $
+      [ Object.singleton "foo" (Just "++") # Object.insert "bar" (Just "id")
+      , Object.singleton "foo" Nothing
       ]

@@ -14,6 +14,7 @@ import Shannon.Data.MigrationStep as MigrationStep
 import Shannon.Data.MigrationSteps as MigrationSteps
 import Shannon.Data.TableSchema (class TableSchemaCons)
 import Shannon.Symbol (_steps_, _stores_)
+import Shannon.Type.MustHaveTable (class MustHaveTable)
 import Shannon.Type.MustNotHaveTable (class MustNotHaveTable)
 import Shannon.Type.SerializeSchema (class SerializeTableSchema, serializeTableSchema)
 import Shannon.Type.TableSchemaWithoutIndex (class TableSchemaWithoutIndex)
@@ -47,6 +48,18 @@ addTable tableName tableSchema (Migration m) = Migration $ updateSteps m
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) newTableSchema
     newTableSchema = Just $ serializeTableSchema tableSchema
+
+removeTable ::
+  forall tableName tableSchema version currentSchema newSchema.
+  IsSymbol tableName =>
+  Cons tableName tableSchema newSchema currentSchema =>
+  DatabaseSchema currentSchema =>
+  MustHaveTable tableName currentSchema =>
+  Proxy tableName -> Migration version currentSchema -> Migration version newSchema
+removeTable tableName (Migration m) = Migration $ updateSteps m
+  where
+    updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
+    updateStores = Object.insert (reflectSymbol tableName) Nothing
 
 addIndex ::
   forall
