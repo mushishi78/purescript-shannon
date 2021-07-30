@@ -9,9 +9,9 @@ import Shannon.Data.Database (Database)
 import Shannon.Type.InsertKey (class InsertKeyInDatabaseSchema)
 import Type.Proxy (Proxy)
 
-insertRecord ::
+insert ::
   forall dbSchema tableName insertKey insertRow.
     IsSymbol tableName =>
     InsertKeyInDatabaseSchema dbSchema tableName insertKey =>
     Database dbSchema -> Proxy tableName -> insertKey -> Record insertRow -> Promise Unit
-insertRecord _ _ _ _ = Promise.resolve unit
+insert _ _ _ _ = Promise.resolve unit
