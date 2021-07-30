@@ -2,6 +2,7 @@ module Shannon.Migration where
 
 import Prelude
 
+import Data.Maybe (Maybe(..))
 import Data.Symbol (class IsSymbol, reflectSymbol)
 import Foreign.Object as Object
 import Prim.Ordering (LT)
@@ -44,9 +45,8 @@ addTable ::
 addTable tableName tableSchema (Migration m) = Migration $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
-    updateStores = Object.insert
-      (reflectSymbol tableName)
-      (serializeTableSchema tableSchema)
+    updateStores = Object.insert (reflectSymbol tableName) newTableSchema
+    newTableSchema = Just $ serializeTableSchema tableSchema
 
 addIndex ::
   forall
@@ -70,7 +70,7 @@ addIndex tableName _ _ (Migration m) = Migration $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) newTableSchema
-    newTableSchema = serializeTableSchema (Proxy :: Proxy newTableSchema)
+    newTableSchema = Just $ serializeTableSchema (Proxy :: Proxy newTableSchema)
 
 removeIndex ::
   forall
@@ -93,4 +93,4 @@ removeIndex tableName _ (Migration m) = Migration $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) newTableSchema
-    newTableSchema = serializeTableSchema (Proxy :: Proxy newTableSchema)
+    newTableSchema = Just $ serializeTableSchema (Proxy :: Proxy newTableSchema)

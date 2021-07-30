@@ -9,7 +9,7 @@ import Foreign.Object as Object
 
 type MigrationStep =
   { version :: Int
-  , stores :: Object String
+  , stores :: Object (Maybe String)
   , upgrade :: Maybe (Promise Unit)
   }
 

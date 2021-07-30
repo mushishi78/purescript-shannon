@@ -3,6 +3,7 @@ module Test.Shannon.Migration  where
 import Prelude
 
 import Data.Array as Array
+import Data.Maybe (Maybe(..))
 import Data.NonEmpty as NonEmpty
 import Foreign.Object as Object
 import Shannon.Data.Migration (getDBName, getSteps)
@@ -53,7 +54,9 @@ migrationTests = suite "migration" do
         # addIndex _foo_ notUnique (index _age_)
 
     Assert.shouldEqual (getVersions steps) [0]
-    Assert.shouldEqual (getStores steps) [Object.singleton "foo" "++, age" # Object.insert "bar" "id"]
+    Assert.shouldEqual (getStores steps)
+      [ Object.singleton "foo" (Just "++, age") # Object.insert "bar" (Just "id")
+      ]
 
   test "can make a migration with both versions and tables and indexes" do
     let
@@ -66,8 +69,8 @@ migrationTests = suite "migration" do
 
     Assert.shouldEqual (getVersions steps) [0, 1]
     Assert.shouldEqual (getStores steps) $
-      [ Object.singleton "foo" "++" # Object.insert "bar" "id"
-      , Object.singleton "foo" "++, age"
+      [ Object.singleton "foo" (Just "++") # Object.insert "bar" (Just "id")
+      , Object.singleton "foo" (Just "++, age")
       ]
 
   test "can remove an index from the end of a table schema" do
@@ -82,8 +85,8 @@ migrationTests = suite "migration" do
 
     Assert.shouldEqual (getVersions steps) [0, 1]
     Assert.shouldEqual (getStores steps) $
-      [ Object.singleton "foo" "++, age" # Object.insert "bar" "id"
-      , Object.singleton "foo" "++"
+      [ Object.singleton "foo" (Just "++, age") # Object.insert "bar" (Just "id")
+      , Object.singleton "foo" (Just "++")
       ]
 
   test "can remove an index from the middle of a table schema" do
@@ -99,6 +102,6 @@ migrationTests = suite "migration" do
 
     Assert.shouldEqual (getVersions steps) [0, 1]
     Assert.shouldEqual (getStores steps) $
-      [ Object.singleton "foo" "++, age, [age+id]" # Object.insert "bar" "id"
-      , Object.singleton "foo" "++, [age+id]"
+      [ Object.singleton "foo" (Just "++, age, [age+id]") # Object.insert "bar" (Just "id")
+      , Object.singleton "foo" (Just "++, [age+id]")
       ]
