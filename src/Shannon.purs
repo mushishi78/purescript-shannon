@@ -4,7 +4,7 @@ import Prelude
 
 import Effect.Aff (Aff)
 import Shannon.Data.Database (Database(..))
-import Shannon.Data.Migration (Migration)
+import Shannon.Data.Migration (CanUpgrade, Migration)
 import Shannon.Data.Proxy (inbound, incrementing, index, nonIncrementing, notUnique, outbound)
 import Shannon.Data.Shannon (withImplicitTransactions)
 import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
@@ -25,7 +25,7 @@ type MySchema =
 db :: Database MySchema
 db = Database { mappings: unit }
 
-migration :: Migration D1 MySchema
+migration :: Migration D1 MySchema CanUpgrade
 migration = defineMigration "mydb"
   # addTable _foo_ (outbound nonIncrementing)
   # newVersion d1
