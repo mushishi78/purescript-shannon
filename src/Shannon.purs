@@ -2,9 +2,11 @@ module Shannon where
 
 import Prelude
 
+import Effect.Aff (Aff)
 import Shannon.Data.Database (Database(..))
 import Shannon.Data.Migration (Migration)
 import Shannon.Data.Proxy (inbound, incrementing, index, nonIncrementing, notUnique, outbound)
+import Shannon.Data.Shannon (withImplicitTransactions)
 import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
 import Shannon.Insert (insert)
 import Shannon.Migration (addIndex, addTable, defineMigration, newVersion)
@@ -30,5 +32,8 @@ migration = defineMigration "mydb"
   # addTable _bar_ (inbound incrementing (index _id_))
   # addIndex _foo_ notUnique (index _id_)
 
-i1 = insert db _foo_ 1 { id: "name" }
-i2 = insert db _bar_ unit { id: 1 }
+insertExample :: Aff Unit
+insertExample = withImplicitTransactions db do
+  insert _foo_ 1 { id: "name" }
+  insert _bar_ unit { id: 1 }
+

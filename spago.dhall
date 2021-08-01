@@ -1,12 +1,14 @@
 { name = "shannon"
 , dependencies =
-  [ "arrays"
+  [ "aff"
+  , "arrays"
   , "dexie"
   , "foreign-object"
   , "maybe"
   , "nonempty"
   , "prelude"
   , "record"
+  , "transformers"
   , "typelevel-peano"
   , "typelevel-prelude"
   ]
