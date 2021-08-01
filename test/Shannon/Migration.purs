@@ -3,12 +3,13 @@ module Test.Shannon.Migration  where
 import Prelude
 
 import Data.Array as Array
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), isJust)
 import Data.NonEmpty as NonEmpty
 import Foreign.Object as Object
 import Shannon.Data.Migration (getDBName, getSteps)
 import Shannon.Data.Proxy (compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound)
-import Shannon.Migration (addIndex, addTable, defineMigration, newVersion, removeIndex, removeTable)
+import Shannon.Insert (insert)
+import Shannon.Migration (addIndex, addTable, defineMigration, newVersion, removeIndex, removeTable, setUpgrade)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import Type.Data.Peano (d1, d5)
@@ -120,3 +121,20 @@ migrationTests = suite "migration" do
       [ Object.singleton "foo" (Just "++") # Object.insert "bar" (Just "id")
       , Object.singleton "foo" Nothing
       ]
+
+  test "can set upgrade effect for migration" do
+    let
+      steps = NonEmpty.oneOf $ getSteps migration
+      migration = defineMigration "mydb"
+        # addTable _foo_ (outbound incrementing)
+        # addTable _bar_ (inbound nonIncrementing (index _id_))
+        # newVersion d1
+        # setUpgrade (do
+          insert _foo_ (Just 1) { id: "name" }
+          insert _bar_ unit { id: 1 }
+        )
+
+      upgradesAreJust = map (_.upgrade >>> isJust) steps # Array.reverse
+
+    Assert.shouldEqual (getVersions steps) [0, 1]
+    Assert.shouldEqual upgradesAreJust [false, true]

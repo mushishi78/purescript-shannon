@@ -4,6 +4,7 @@ import Prelude
 
 import Data.Maybe (Maybe(..))
 import Data.Symbol (class IsSymbol, reflectSymbol)
+import Dexie.Promise as Promise
 import Foreign.Object as Object
 import Prim.Ordering (LT)
 import Prim.Row (class Cons, class Nub)
@@ -12,8 +13,9 @@ import Shannon.Data.DatabaseSchema (class DatabaseSchema)
 import Shannon.Data.Migration (Migration(..))
 import Shannon.Data.MigrationStep as MigrationStep
 import Shannon.Data.MigrationSteps as MigrationSteps
+import Shannon.Data.Shannon (Shannon)
 import Shannon.Data.TableSchema (class TableSchemaCons)
-import Shannon.Symbol (_steps_, _stores_)
+import Shannon.Symbol (_steps_, _stores_, _upgrade_)
 import Shannon.Type.MustHaveTable (class MustHaveTable)
 import Shannon.Type.MustNotHaveTable (class MustNotHaveTable)
 import Shannon.Type.SerializeSchema (class SerializeTableSchema, serializeTableSchema)
@@ -107,3 +109,11 @@ removeIndex tableName _ (Migration m) = Migration $ updateSteps m
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) newTableSchema
     newTableSchema = Just $ serializeTableSchema (Proxy :: Proxy newTableSchema)
+
+setUpgrade :: forall version databaseSchema.
+  DatabaseSchema databaseSchema =>
+  Shannon databaseSchema Unit -> Migration version databaseSchema -> Migration version databaseSchema
+setUpgrade _ (Migration m) = Migration $ updateSteps m
+  where
+    updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.set _upgrade_ newUpgrade
+    newUpgrade = Just $ Promise.resolve unit -- TODO
