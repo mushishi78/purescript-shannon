@@ -2,6 +2,7 @@ module Shannon.Type.InsertKey where
 
 import Prelude
 
+import Data.Maybe (Maybe)
 import Dexie.IndexedValue (class IndexedValue)
 import Prim.Row (class Cons) as Row
 import Shannon.Data.DatabaseSchema (class DatabaseSchema)
@@ -21,7 +22,7 @@ class InsertKeyInTableSchema :: TableSchema_ -> Type -> Constraint
 class InsertKeyInTableSchema tableSchema insertKey | tableSchema -> insertKey
 
 instance findInsertKeyInTableSchema_OutboundIncrementing
-  :: InsertKeyInTableSchema (OutboundPrimaryKey Incrementing) Int
+  :: InsertKeyInTableSchema (OutboundPrimaryKey Incrementing) (Maybe Int)
 
 instance findInsertKeyInTableSchema_OutboundNonIncrementing
   :: (IndexedValue v)
