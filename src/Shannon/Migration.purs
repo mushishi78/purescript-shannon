@@ -16,6 +16,7 @@ import Shannon.Data.MigrationSteps as MigrationSteps
 import Shannon.Data.Shannon (Shannon)
 import Shannon.Data.TableSchema (class TableSchemaCons)
 import Shannon.Symbol (_steps_, _stores_, _upgrade_)
+import Shannon.Type.CanChangeStores (class CanChangeStores)
 import Shannon.Type.MustHaveTable (class MustHaveTable)
 import Shannon.Type.MustNotHaveTable (class MustNotHaveTable)
 import Shannon.Type.SerializeSchema (class SerializeTableSchema, serializeTableSchema)
@@ -44,6 +45,7 @@ addTable ::
   DatabaseSchema currentSchema =>
   SerializeTableSchema tableSchema =>
   MustNotHaveTable tableName currentSchema =>
+  CanChangeStores upgradable =>
   Proxy tableName -> Proxy tableSchema -> Migration version currentSchema upgradable -> Migration version mergedNubbedSchema upgradable
 addTable tableName tableSchema (Migration m) = Migration $ updateSteps m
   where
@@ -57,6 +59,7 @@ removeTable ::
   Cons tableName tableSchema newSchema currentSchema =>
   DatabaseSchema currentSchema =>
   MustHaveTable tableName currentSchema =>
+  CanChangeStores upgradable =>
   Proxy tableName -> Migration version currentSchema upgradable -> Migration version newSchema upgradable
 removeTable tableName (Migration m) = Migration $ updateSteps m
   where
@@ -81,6 +84,7 @@ addIndex ::
   DatabaseSchema currentDatabaseSchema =>
   TableSchemaCons uniqueness index currentTableSchema newTableSchema =>
   SerializeTableSchema newTableSchema =>
+  CanChangeStores upgradable =>
   Proxy tableName -> Proxy uniqueness -> Proxy index -> Migration version currentDatabaseSchema upgradable -> Migration version newDatabaseSchema upgradable
 addIndex tableName _ _ (Migration m) = Migration $ updateSteps m
   where
@@ -105,6 +109,7 @@ removeIndex ::
   DatabaseSchema currentDatabaseSchema =>
   TableSchemaWithoutIndex index currentTableSchema newTableSchema =>
   SerializeTableSchema newTableSchema =>
+  CanChangeStores upgradable =>
   Proxy tableName -> Proxy index -> Migration version currentDatabaseSchema upgradable -> Migration version newDatabaseSchema upgradable
 removeIndex tableName _ (Migration m) = Migration $ updateSteps m
   where
