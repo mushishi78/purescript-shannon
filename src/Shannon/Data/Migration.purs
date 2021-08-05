@@ -11,6 +11,11 @@ newtype Migration version databaseSchema upgradable = Migration (
     MigrationRecord
   )
 
+newtype DefinedMigration :: forall k. Row k -> Type
+newtype DefinedMigration databaseSchema = DefinedMigration (
+  DatabaseSchema databaseSchema => MigrationRecord
+)
+
 type MigrationRecord = { dbName :: String, steps :: MigrationSteps }
 
 data Upgradable_

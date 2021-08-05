@@ -10,7 +10,7 @@ import Prim.Ordering (LT)
 import Prim.Row (class Cons, class Nub)
 import Record as Record
 import Shannon.Data.DatabaseSchema (class DatabaseSchema)
-import Shannon.Data.Migration (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, Migration(..))
+import Shannon.Data.Migration (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, DefinedMigration(..), Migration(..))
 import Shannon.Data.MigrationStep as MigrationStep
 import Shannon.Data.MigrationSteps as MigrationSteps
 import Shannon.Data.Shannon (Shannon)
@@ -24,8 +24,8 @@ import Shannon.Type.TableSchemaWithoutIndex (class TableSchemaWithoutIndex)
 import Type.Data.Peano.Nat (class CompareNat, class IsNat, D0, reflectNat)
 import Type.Proxy (Proxy(..))
 
-defineMigration :: String -> Migration D0 () CannotUpgradeInitially
-defineMigration dbName = Migration { dbName, steps: MigrationSteps.empty }
+startMigrationDefinition :: String -> Migration D0 () CannotUpgradeInitially
+startMigrationDefinition dbName = Migration { dbName, steps: MigrationSteps.empty }
 
 newVersion ::
   forall v1 v2 databaseSchema proxy upgradable.
@@ -124,3 +124,10 @@ setUpgrade _ (Migration m) = Migration $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.set _upgrade_ newUpgrade
     newUpgrade = Just $ Promise.resolve unit -- TODO
+
+-- | Used to remove type information only needed whilst defining migration
+completeMigrationDefinition :: forall version databaseSchema upgradable.
+  IsNat version =>
+  DatabaseSchema databaseSchema =>
+  Migration version databaseSchema upgradable -> DefinedMigration databaseSchema
+completeMigrationDefinition (Migration m) = DefinedMigration m
