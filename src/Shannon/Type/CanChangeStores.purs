@@ -1,7 +1,7 @@
 module Shannon.Type.CanChangeStores where
 
 import Prim.TypeError (class Fail, Text)
-import Shannon.Data.Migration (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, Upgradable_)
+import Shannon.Data.MigrationBuilder (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, Upgradable_)
 
 -- | Can only make changes to the stores (add and remove tables or indexes)
 -- | before the upgrade for the current version

@@ -1,4 +1,4 @@
-module Shannon.Migration where
+module Shannon.MigrationBuilder where
 
 import Prelude
 
@@ -10,7 +10,7 @@ import Prim.Ordering (LT)
 import Prim.Row (class Cons, class Nub)
 import Record as Record
 import Shannon.Data.DatabaseSchema (class DatabaseSchema)
-import Shannon.Data.Migration (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, DefinedMigration(..), Migration(..))
+import Shannon.Data.MigrationBuilder (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, DefinedMigration(..), MigrationBuilder(..))
 import Shannon.Data.MigrationStep as MigrationStep
 import Shannon.Data.MigrationSteps as MigrationSteps
 import Shannon.Data.Shannon (Shannon)
@@ -24,16 +24,16 @@ import Shannon.Type.TableSchemaWithoutIndex (class TableSchemaWithoutIndex)
 import Type.Data.Peano.Nat (class CompareNat, class IsNat, D0, reflectNat)
 import Type.Proxy (Proxy(..))
 
-startMigrationDefinition :: String -> Migration D0 () CannotUpgradeInitially
-startMigrationDefinition dbName = Migration { dbName, steps: MigrationSteps.empty }
+startMigrationDefinition :: String -> MigrationBuilder D0 () CannotUpgradeInitially
+startMigrationDefinition dbName = MigrationBuilder { dbName, steps: MigrationSteps.empty }
 
 newVersion ::
   forall v1 v2 databaseSchema proxy upgradable.
   IsNat v1 =>
   IsNat v2 =>
   CompareNat v1 v2 LT =>
-  proxy v2 -> Migration v1 databaseSchema upgradable -> Migration v2 databaseSchema CanUpgrade
-newVersion _ (Migration m) = Migration $ Record.modify _steps_ (MigrationSteps.cons newStep) m
+  proxy v2 -> MigrationBuilder v1 databaseSchema upgradable -> MigrationBuilder v2 databaseSchema CanUpgrade
+newVersion _ (MigrationBuilder m) = MigrationBuilder $ Record.modify _steps_ (MigrationSteps.cons newStep) m
   where
     newStep = MigrationStep.empty $ reflectNat $ (Proxy :: Proxy v2)
 
@@ -46,8 +46,8 @@ addTable ::
   SerializeTableSchema tableSchema =>
   MustNotHaveTable tableName currentSchema =>
   CanChangeStores upgradable =>
-  Proxy tableName -> Proxy tableSchema -> Migration version currentSchema upgradable -> Migration version mergedNubbedSchema upgradable
-addTable tableName tableSchema (Migration m) = Migration $ updateSteps m
+  Proxy tableName -> Proxy tableSchema -> MigrationBuilder version currentSchema upgradable -> MigrationBuilder version mergedNubbedSchema upgradable
+addTable tableName tableSchema (MigrationBuilder m) = MigrationBuilder $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) newTableSchema
@@ -60,8 +60,8 @@ removeTable ::
   DatabaseSchema currentSchema =>
   MustHaveTable tableName currentSchema =>
   CanChangeStores upgradable =>
-  Proxy tableName -> Migration version currentSchema upgradable -> Migration version newSchema upgradable
-removeTable tableName (Migration m) = Migration $ updateSteps m
+  Proxy tableName -> MigrationBuilder version currentSchema upgradable -> MigrationBuilder version newSchema upgradable
+removeTable tableName (MigrationBuilder m) = MigrationBuilder $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) Nothing
@@ -85,8 +85,8 @@ addIndex ::
   TableSchemaCons uniqueness index currentTableSchema newTableSchema =>
   SerializeTableSchema newTableSchema =>
   CanChangeStores upgradable =>
-  Proxy tableName -> Proxy uniqueness -> Proxy index -> Migration version currentDatabaseSchema upgradable -> Migration version newDatabaseSchema upgradable
-addIndex tableName _ _ (Migration m) = Migration $ updateSteps m
+  Proxy tableName -> Proxy uniqueness -> Proxy index -> MigrationBuilder version currentDatabaseSchema upgradable -> MigrationBuilder version newDatabaseSchema upgradable
+addIndex tableName _ _ (MigrationBuilder m) = MigrationBuilder $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) newTableSchema
@@ -110,8 +110,8 @@ removeIndex ::
   TableSchemaWithoutIndex index currentTableSchema newTableSchema =>
   SerializeTableSchema newTableSchema =>
   CanChangeStores upgradable =>
-  Proxy tableName -> Proxy index -> Migration version currentDatabaseSchema upgradable -> Migration version newDatabaseSchema upgradable
-removeIndex tableName _ (Migration m) = Migration $ updateSteps m
+  Proxy tableName -> Proxy index -> MigrationBuilder version currentDatabaseSchema upgradable -> MigrationBuilder version newDatabaseSchema upgradable
+removeIndex tableName _ (MigrationBuilder m) = MigrationBuilder $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.modify _stores_ updateStores
     updateStores = Object.insert (reflectSymbol tableName) newTableSchema
@@ -119,8 +119,8 @@ removeIndex tableName _ (Migration m) = Migration $ updateSteps m
 
 setUpgrade :: forall version databaseSchema.
   DatabaseSchema databaseSchema =>
-  Shannon databaseSchema Unit -> Migration version databaseSchema CanUpgrade -> Migration version databaseSchema AlreadyHasUpgrade
-setUpgrade _ (Migration m) = Migration $ updateSteps m
+  Shannon databaseSchema Unit -> MigrationBuilder version databaseSchema CanUpgrade -> MigrationBuilder version databaseSchema AlreadyHasUpgrade
+setUpgrade _ (MigrationBuilder m) = MigrationBuilder $ updateSteps m
   where
     updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.set _upgrade_ newUpgrade
     newUpgrade = Just $ Promise.resolve unit -- TODO
@@ -129,5 +129,5 @@ setUpgrade _ (Migration m) = Migration $ updateSteps m
 completeMigrationDefinition :: forall version databaseSchema upgradable.
   IsNat version =>
   DatabaseSchema databaseSchema =>
-  Migration version databaseSchema upgradable -> DefinedMigration databaseSchema
-completeMigrationDefinition (Migration m) = DefinedMigration m
+  MigrationBuilder version databaseSchema upgradable -> DefinedMigration databaseSchema
+completeMigrationDefinition (MigrationBuilder m) = DefinedMigration m

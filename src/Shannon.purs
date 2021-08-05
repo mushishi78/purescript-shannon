@@ -4,12 +4,12 @@ import Prelude
 
 import Effect.Aff (Aff)
 import Shannon.Data.Database (Database(..))
-import Shannon.Data.Migration (DefinedMigration)
+import Shannon.Data.MigrationBuilder (DefinedMigration)
 import Shannon.Data.Proxy (inbound, incrementing, index, nonIncrementing, notUnique, outbound)
 import Shannon.Data.Shannon (withImplicitTransactions)
 import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
 import Shannon.Insert (insert)
-import Shannon.Migration (addIndex, addTable, completeMigrationDefinition, startMigrationDefinition, newVersion, setUpgrade)
+import Shannon.MigrationBuilder (addIndex, addTable, completeMigrationDefinition, startMigrationDefinition, newVersion, setUpgrade)
 import Type.Data.Peano (d1)
 import Type.Proxy (Proxy(..))
 

@@ -1,4 +1,4 @@
-module Test.Shannon.Migration  where
+module Test.Shannon.MigrationBuilder  where
 
 import Prelude
 
@@ -6,10 +6,10 @@ import Data.Array as Array
 import Data.Maybe (Maybe(..), isJust)
 import Data.NonEmpty as NonEmpty
 import Foreign.Object as Object
-import Shannon.Data.Migration (getDBName, getSteps)
+import Shannon.Data.MigrationBuilder (getDBName, getSteps)
 import Shannon.Data.Proxy (compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound)
 import Shannon.Insert (insert)
-import Shannon.Migration (addIndex, addTable, startMigrationDefinition, newVersion, removeIndex, removeTable, setUpgrade)
+import Shannon.MigrationBuilder (addIndex, addTable, startMigrationDefinition, newVersion, removeIndex, removeTable, setUpgrade)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import Type.Data.Peano (d1, d5)
