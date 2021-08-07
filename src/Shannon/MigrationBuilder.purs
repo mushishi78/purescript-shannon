@@ -10,7 +10,7 @@ import Prim.Ordering (LT)
 import Prim.Row (class Cons, class Nub)
 import Record as Record
 import Shannon.Data.DatabaseSchema (class DatabaseSchema)
-import Shannon.Data.DefinedMigration (DefinedMigration(..))
+import Shannon.Data.MigrationDefinition (MigrationDefinition(..))
 import Shannon.Data.MigrationBuilder (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, MigrationBuilder(..))
 import Shannon.Data.MigrationStep as MigrationStep
 import Shannon.Data.MigrationSteps as MigrationSteps
@@ -130,5 +130,5 @@ setUpgrade _ (MigrationBuilder m) = MigrationBuilder $ updateSteps m
 completeMigrationDefinition :: forall version databaseSchema upgradable.
   IsNat version =>
   DatabaseSchema databaseSchema =>
-  MigrationBuilder version databaseSchema upgradable -> DefinedMigration databaseSchema
-completeMigrationDefinition (MigrationBuilder m) = DefinedMigration m
+  MigrationBuilder version databaseSchema upgradable -> MigrationDefinition databaseSchema
+completeMigrationDefinition (MigrationBuilder m) = MigrationDefinition m

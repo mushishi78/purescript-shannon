@@ -4,7 +4,7 @@ import Prelude
 
 import Effect.Aff (Aff)
 import Shannon.Data.Database (Database(..))
-import Shannon.Data.DefinedMigration (DefinedMigration)
+import Shannon.Data.MigrationDefinition (MigrationDefinition)
 import Shannon.Data.Proxy (inbound, incrementing, index, nonIncrementing, notUnique, outbound)
 import Shannon.Data.Shannon (withImplicitTransactions)
 import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
@@ -25,7 +25,7 @@ type MySchema =
 db :: Database MySchema
 db = Database { mappings: unit }
 
-migration :: DefinedMigration MySchema
+migration :: MigrationDefinition MySchema
 migration = startMigrationDefinition "mydb"
   # addTable _foo_ (outbound nonIncrementing)
   # newVersion d1
