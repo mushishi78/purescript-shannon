@@ -10,7 +10,8 @@ import Prim.Ordering (LT)
 import Prim.Row (class Cons, class Nub)
 import Record as Record
 import Shannon.Data.DatabaseSchema (class DatabaseSchema)
-import Shannon.Data.MigrationBuilder (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, DefinedMigration(..), MigrationBuilder(..))
+import Shannon.Data.DefinedMigration (DefinedMigration(..))
+import Shannon.Data.MigrationBuilder (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, MigrationBuilder(..))
 import Shannon.Data.MigrationStep as MigrationStep
 import Shannon.Data.MigrationSteps as MigrationSteps
 import Shannon.Data.Shannon (Shannon)

@@ -4,7 +4,7 @@ import Prelude
 
 import Effect.Aff (Aff)
 import Shannon.Data.Database (Database(..))
-import Shannon.Data.MigrationBuilder (DefinedMigration)
+import Shannon.Data.DefinedMigration (DefinedMigration)
 import Shannon.Data.Proxy (inbound, incrementing, index, nonIncrementing, notUnique, outbound)
 import Shannon.Data.Shannon (withImplicitTransactions)
 import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)

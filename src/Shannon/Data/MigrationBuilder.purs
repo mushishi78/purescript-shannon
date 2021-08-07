@@ -11,11 +11,6 @@ newtype MigrationBuilder version databaseSchema upgradable = MigrationBuilder (
     { dbName :: String, steps :: MigrationSteps }
   )
 
-newtype DefinedMigration :: forall k. Row k -> Type
-newtype DefinedMigration databaseSchema = DefinedMigration (
-  DatabaseSchema databaseSchema => { dbName :: String, steps :: MigrationSteps }
-)
-
 data Upgradable_
 foreign import data CannotUpgradeInitially :: Upgradable_
 foreign import data CanUpgrade :: Upgradable_
