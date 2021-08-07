@@ -11,7 +11,10 @@ import Type.Proxy (Proxy)
 
 insert ::
   forall dbSchema tableName insertKey insertRow.
-    IsSymbol tableName =>
-    InsertKeyInDatabaseSchema dbSchema tableName insertKey =>
-    Proxy tableName -> insertKey -> Record insertRow -> Shannon dbSchema Unit
+  IsSymbol tableName =>
+  InsertKeyInDatabaseSchema dbSchema tableName insertKey =>
+  Proxy tableName ->
+  insertKey ->
+  Record insertRow ->
+  Shannon dbSchema Unit
 insert _ _ _ = ReaderT \_ -> Promise.resolve unit

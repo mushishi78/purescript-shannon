@@ -1,4 +1,4 @@
-module Test.Shannon.MigrationBuilder  where
+module Test.Shannon.MigrationBuilder where
 
 import Prelude
 
@@ -33,8 +33,8 @@ migrationTests = suite "migration" do
       migration = startMigrationDefinition "mydb"
 
     Assert.shouldEqual (getDBName migration) "mydb"
-    Assert.shouldEqual (getVersions steps) [0]
-    Assert.shouldEqual (getStores steps) [Object.empty]
+    Assert.shouldEqual (getVersions steps) [ 0 ]
+    Assert.shouldEqual (getStores steps) [ Object.empty ]
 
   test "can make a migration with some version changes" do
     let
@@ -43,8 +43,8 @@ migrationTests = suite "migration" do
         # newVersion d1
         # newVersion d5
 
-    Assert.shouldEqual (getVersions steps) [0, 1, 5]
-    Assert.shouldEqual (getStores steps) [Object.empty, Object.empty, Object.empty]
+    Assert.shouldEqual (getVersions steps) [ 0, 1, 5 ]
+    Assert.shouldEqual (getStores steps) [ Object.empty, Object.empty, Object.empty ]
 
   test "can make a migration with some tables and indexes" do
     let
@@ -54,7 +54,7 @@ migrationTests = suite "migration" do
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # addIndex _foo_ notUnique (index _age_)
 
-    Assert.shouldEqual (getVersions steps) [0]
+    Assert.shouldEqual (getVersions steps) [ 0 ]
     Assert.shouldEqual (getStores steps)
       [ Object.singleton "foo" (Just "++, age") # Object.insert "bar" (Just "id")
       ]
@@ -68,7 +68,7 @@ migrationTests = suite "migration" do
         # newVersion d1
         # addIndex _foo_ notUnique (index _age_)
 
-    Assert.shouldEqual (getVersions steps) [0, 1]
+    Assert.shouldEqual (getVersions steps) [ 0, 1 ]
     Assert.shouldEqual (getStores steps) $
       [ Object.singleton "foo" (Just "++") # Object.insert "bar" (Just "id")
       , Object.singleton "foo" (Just "++, age")
@@ -84,7 +84,7 @@ migrationTests = suite "migration" do
         # newVersion d1
         # removeIndex _foo_ (index _age_)
 
-    Assert.shouldEqual (getVersions steps) [0, 1]
+    Assert.shouldEqual (getVersions steps) [ 0, 1 ]
     Assert.shouldEqual (getStores steps) $
       [ Object.singleton "foo" (Just "++, age") # Object.insert "bar" (Just "id")
       , Object.singleton "foo" (Just "++")
@@ -101,7 +101,7 @@ migrationTests = suite "migration" do
         # newVersion d1
         # removeIndex _foo_ (index _age_)
 
-    Assert.shouldEqual (getVersions steps) [0, 1]
+    Assert.shouldEqual (getVersions steps) [ 0, 1 ]
     Assert.shouldEqual (getStores steps) $
       [ Object.singleton "foo" (Just "++, age, [age+id]") # Object.insert "bar" (Just "id")
       , Object.singleton "foo" (Just "++, [age+id]")
@@ -116,7 +116,7 @@ migrationTests = suite "migration" do
         # newVersion d1
         # removeTable _foo_
 
-    Assert.shouldEqual (getVersions steps) [0, 1]
+    Assert.shouldEqual (getVersions steps) [ 0, 1 ]
     Assert.shouldEqual (getStores steps) $
       [ Object.singleton "foo" (Just "++") # Object.insert "bar" (Just "id")
       , Object.singleton "foo" Nothing
@@ -129,12 +129,13 @@ migrationTests = suite "migration" do
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # newVersion d1
-        # setUpgrade (do
-          insert _foo_ (Just 1) { id: "name" }
-          insert _bar_ unit { id: 1 }
-        )
+        # setUpgrade
+          ( do
+              insert _foo_ (Just 1) { id: "name" }
+              insert _bar_ unit { id: 1 }
+          )
 
       upgradesAreJust = map (_.upgrade >>> isJust) steps # Array.reverse
 
-    Assert.shouldEqual (getVersions steps) [0, 1]
-    Assert.shouldEqual upgradesAreJust [false, true]
+    Assert.shouldEqual (getVersions steps) [ 0, 1 ]
+    Assert.shouldEqual upgradesAreJust [ false, true ]

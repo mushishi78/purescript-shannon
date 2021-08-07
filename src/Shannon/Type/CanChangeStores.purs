@@ -12,6 +12,7 @@ instance canChangeStores_CannotUpgradeInitially :: CanChangeStores CannotUpgrade
 
 instance canChangeStores_CanUpgrade :: CanChangeStores CanUpgrade
 
-instance canChangeStores_Fail
-    :: (Fail (Text "Cannot change store after upgrade in migration step"))
-    => CanChangeStores AlreadyHasUpgrade
+instance canChangeStores_Fail ::
+  ( Fail (Text "Cannot change store after upgrade in migration step")
+  ) =>
+  CanChangeStores AlreadyHasUpgrade

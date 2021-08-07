@@ -5,9 +5,9 @@ import Shannon.Data.MigrationSteps (MigrationSteps)
 import Type.Data.Peano (class IsNat, Nat)
 
 newtype MigrationBuilder :: forall k. Nat -> Row k -> Upgradable_ -> Type
-newtype MigrationBuilder version databaseSchema upgradable = MigrationBuilder (
-  IsNat version =>
-  DatabaseSchema databaseSchema =>
+newtype MigrationBuilder version databaseSchema upgradable = MigrationBuilder
+  ( IsNat version =>
+    DatabaseSchema databaseSchema =>
     { dbName :: String, steps :: MigrationSteps }
   )
 
@@ -20,12 +20,14 @@ getDBName ::
   forall version databaseSchema upgradable.
   IsNat version =>
   DatabaseSchema databaseSchema =>
-  MigrationBuilder version databaseSchema upgradable -> String
+  MigrationBuilder version databaseSchema upgradable ->
+  String
 getDBName (MigrationBuilder m) = m.dbName
 
 getSteps ::
   forall version databaseSchema upgradable.
   IsNat version =>
   DatabaseSchema databaseSchema =>
-  MigrationBuilder version databaseSchema upgradable -> MigrationSteps
+  MigrationBuilder version databaseSchema upgradable ->
+  MigrationSteps
 getSteps (MigrationBuilder m) = m.steps

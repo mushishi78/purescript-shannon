@@ -12,30 +12,34 @@ import Type.Proxy (Proxy(..))
 
 class SerializeDatabaseSchema :: forall r. Row r -> Constraint
 class SerializeDatabaseSchema databaseSchema where
-    serializeDatabaseSchema :: Proxy databaseSchema -> Object String
+  serializeDatabaseSchema :: Proxy databaseSchema -> Object String
 
-instance serializeDatabaseSchemaRow
-    :: ( RowToList row rowList, SerializeDatabaseSchemaRowList rowList )
-    => SerializeDatabaseSchema row where
+instance serializeDatabaseSchemaRow ::
+  ( RowToList row rowList
+  , SerializeDatabaseSchemaRowList rowList
+  ) =>
+  SerializeDatabaseSchema row where
   serializeDatabaseSchema _ = serializeDatabaseSchemaRowList (Proxy :: Proxy rowList)
 
 --
 
 class SerializeDatabaseSchemaRowList :: forall r. RowList r -> Constraint
 class SerializeDatabaseSchemaRowList databaseSchema where
-    serializeDatabaseSchemaRowList :: Proxy databaseSchema -> Object String
+  serializeDatabaseSchemaRowList :: Proxy databaseSchema -> Object String
 
-instance serializeDatabaseSchemaRowList_Cons
-    :: ( IsSymbol k, SerializeTableSchema v, SerializeDatabaseSchemaRowList tail )
-    => SerializeDatabaseSchemaRowList (RowList.Cons k v tail) where
+instance serializeDatabaseSchemaRowList_Cons ::
+  ( IsSymbol k
+  , SerializeTableSchema v
+  , SerializeDatabaseSchemaRowList tail
+  ) =>
+  SerializeDatabaseSchemaRowList (RowList.Cons k v tail) where
   serializeDatabaseSchemaRowList _ =
     Object.insert
-        (reflectSymbol (Proxy :: Proxy k))
-        (serializeTableSchema (Proxy :: Proxy v))
-        (serializeDatabaseSchemaRowList (Proxy :: Proxy tail))
+      (reflectSymbol (Proxy :: Proxy k))
+      (serializeTableSchema (Proxy :: Proxy v))
+      (serializeDatabaseSchemaRowList (Proxy :: Proxy tail))
 
-else instance serializeDatabaseSchemaRowList_Nil
-    :: SerializeDatabaseSchemaRowList RowList.Nil where
+else instance serializeDatabaseSchemaRowList_Nil :: SerializeDatabaseSchemaRowList RowList.Nil where
   serializeDatabaseSchemaRowList _ = Object.empty
 
 --
@@ -43,24 +47,29 @@ else instance serializeDatabaseSchemaRowList_Nil
 class SerializeTableSchema (tableSchema :: TableSchema_) where
   serializeTableSchema :: Proxy tableSchema -> String
 
-instance serializeTableSchema_OutboundPrimaryKey
-    :: SerializeIncrementing incr
-    => SerializeTableSchema (OutboundPrimaryKey incr) where
+instance serializeTableSchema_OutboundPrimaryKey ::
+  SerializeIncrementing incr =>
+  SerializeTableSchema (OutboundPrimaryKey incr) where
   serializeTableSchema _ = serializeIncrementing (Proxy :: Proxy incr)
 
-instance serializeTableSchema_InboundPrimaryKey
-    :: (SerializeIncrementing incr, SerializeIndex indx)
-    => SerializeTableSchema (InboundPrimaryKey incr indx) where
+instance serializeTableSchema_InboundPrimaryKey ::
+  ( SerializeIncrementing incr
+  , SerializeIndex indx
+  ) =>
+  SerializeTableSchema (InboundPrimaryKey incr indx) where
   serializeTableSchema _ = serializeIncrementing (Proxy :: Proxy incr) <> serializeIndex (Proxy :: Proxy indx)
 
-instance serializeTableSchema_WithIndex
-    :: (SerializeUniqueness uniq, SerializeIndex indx, SerializeTableSchema tail)
-    => SerializeTableSchema (WithIndex uniq indx tail) where
+instance serializeTableSchema_WithIndex ::
+  ( SerializeUniqueness uniq
+  , SerializeIndex indx
+  , SerializeTableSchema tail
+  ) =>
+  SerializeTableSchema (WithIndex uniq indx tail) where
   serializeTableSchema _ =
     serializeTableSchema (Proxy :: Proxy tail)
-    <> ", "
-    <> serializeUniqueness (Proxy :: Proxy uniq)
-    <> serializeIndex (Proxy :: Proxy indx)
+      <> ", "
+      <> serializeUniqueness (Proxy :: Proxy uniq)
+      <> serializeIndex (Proxy :: Proxy indx)
 
 --
 

@@ -31,9 +31,10 @@ migration = startMigrationDefinition "mydb"
   # newVersion d1
   # addTable _bar_ (inbound incrementing (index _id_))
   # addIndex _foo_ notUnique (index _id_)
-  # setUpgrade (do
-    insert _foo_ 1 { id: "name" }
-  )
+  # setUpgrade
+    ( do
+        insert _foo_ 1 { id: "name" }
+    )
   # completeMigrationDefinition
 
 insertExample :: Aff Unit

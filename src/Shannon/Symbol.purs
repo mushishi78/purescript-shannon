@@ -2,7 +2,6 @@ module Shannon.Symbol where
 
 import Type.Proxy (Proxy(..))
 
-
 _dbName_ = Proxy :: Proxy "dbName"
 _steps_ = Proxy :: Proxy "steps"
 

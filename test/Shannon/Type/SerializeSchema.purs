@@ -1,4 +1,4 @@
-module Test.Shannon.Type.SerializeSchema  where
+module Test.Shannon.Type.SerializeSchema where
 
 import Prelude
 
@@ -39,41 +39,46 @@ serializeSchemaTests = suite "serializeSchema" do
     Assert.shouldEqual (serializeTableSchema tableSchema) "[id+name+age]"
 
   test "serializes an outbound nonIncrementing table with secondary indexes" do
-    let tableSchema =
-          outbound nonIncrementing
-            # withIndex notUnique (index _name_)
-            # withIndex notUnique (index _age_)
+    let
+      tableSchema =
+        outbound nonIncrementing
+          # withIndex notUnique (index _name_)
+          # withIndex notUnique (index _age_)
     Assert.shouldEqual (serializeTableSchema tableSchema) ", name, age"
 
   test "serializes an inbound nonIncrementing table with secondary indexes" do
-    let tableSchema =
-          inbound nonIncrementing (index _id_)
-            # withIndex notUnique (index _name_)
-            # withIndex notUnique (index _age_)
+    let
+      tableSchema =
+        inbound nonIncrementing (index _id_)
+          # withIndex notUnique (index _name_)
+          # withIndex notUnique (index _age_)
     Assert.shouldEqual (serializeTableSchema tableSchema) "id, name, age"
 
   test "serializes a table with unique secondary indexes" do
-    let tableSchema =
-          inbound nonIncrementing (index _id_)
-            # withIndex unique (index _name_)
-            # withIndex unique (index _age_)
+    let
+      tableSchema =
+        inbound nonIncrementing (index _id_)
+          # withIndex unique (index _name_)
+          # withIndex unique (index _age_)
     Assert.shouldEqual (serializeTableSchema tableSchema) "id, &name, &age"
 
   test "serializes a table with compound secondary indexes" do
-    let tableSchema =
-          inbound nonIncrementing (index _id_)
-            # withIndex notUnique (index _id_ # compoundIndex _name_ # compoundIndex _age_)
-            # withIndex unique (index _height_ # compoundIndex _parent_)
+    let
+      tableSchema =
+        inbound nonIncrementing (index _id_)
+          # withIndex notUnique (index _id_ # compoundIndex _name_ # compoundIndex _age_)
+          # withIndex unique (index _height_ # compoundIndex _parent_)
     Assert.shouldEqual (serializeTableSchema tableSchema) "id, [id+name+age], &[height+parent]"
 
   test "serializes a database schema" do
     let
-        databaseSchema :: Proxy
-            ( foo :: OutboundPrimaryKey Incrementing # WithIndex Unique (Index "age")
-            , bar :: InboundPrimaryKey NonIncrementing (Index "id")
-            )
-        databaseSchema = Proxy
+      databaseSchema ::
+        Proxy
+          ( foo :: OutboundPrimaryKey Incrementing # WithIndex Unique (Index "age")
+          , bar :: InboundPrimaryKey NonIncrementing (Index "id")
+          )
+      databaseSchema = Proxy
 
-        expected = Object.singleton "foo" "++, &age" # Object.insert "bar" "id"
+      expected = Object.singleton "foo" "++, &age" # Object.insert "bar" "id"
 
     Assert.shouldEqual (serializeDatabaseSchema databaseSchema) expected
