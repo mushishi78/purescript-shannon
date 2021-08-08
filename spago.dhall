@@ -3,6 +3,7 @@
   [ "aff"
   , "arrays"
   , "dexie"
+  , "foldable-traversable"
   , "foreign-object"
   , "maybe"
   , "nonempty"

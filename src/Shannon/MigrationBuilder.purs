@@ -2,16 +2,17 @@ module Shannon.MigrationBuilder where
 
 import Prelude
 
+import Control.Monad.Reader (runReaderT)
 import Data.Maybe (Maybe(..))
 import Data.Symbol (class IsSymbol, reflectSymbol)
-import Dexie.Promise as Promise
 import Foreign.Object as Object
 import Prim.Ordering (LT)
 import Prim.Row (class Cons, class Nub)
 import Record as Record
+import Shannon.Data.Database (Database(..))
 import Shannon.Data.DatabaseSchema (class DatabaseSchema)
-import Shannon.Data.MigrationDefinition (MigrationDefinition(..))
 import Shannon.Data.MigrationBuilder (AlreadyHasUpgrade, CanUpgrade, CannotUpgradeInitially, MigrationBuilder(..))
+import Shannon.Data.MigrationDefinition (MigrationDefinition(..))
 import Shannon.Data.MigrationStep as MigrationStep
 import Shannon.Data.MigrationSteps as MigrationSteps
 import Shannon.Data.Shannon (Shannon)
@@ -138,10 +139,10 @@ setUpgrade ::
   Shannon databaseSchema Unit ->
   MigrationBuilder version databaseSchema CanUpgrade ->
   MigrationBuilder version databaseSchema AlreadyHasUpgrade
-setUpgrade _ (MigrationBuilder m) = MigrationBuilder $ updateSteps m
+setUpgrade upgrade (MigrationBuilder m) = MigrationBuilder $ updateSteps m
   where
   updateSteps = Record.modify _steps_ $ MigrationSteps.mapHead $ Record.set _upgrade_ newUpgrade
-  newUpgrade = Just $ Promise.resolve unit -- TODO
+  newUpgrade = Just $ \db trnx -> runReaderT upgrade $ Database { db, trnx: Just trnx }
 
 -- | Used to remove type information only needed whilst defining migration
 completeMigrationDefinition ::
