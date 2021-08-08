@@ -2,7 +2,7 @@ module Shannon.Type.InsertKey where
 
 import Prelude
 
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(..))
 import Dexie.IndexedValue (class IndexedValue)
 import Prim.Row (class Cons) as Row
 import Shannon.Data.DatabaseSchema (class DatabaseSchema)
@@ -34,3 +34,24 @@ instance findInsertKeyInTableSchema_Recursing ::
   ( InsertKeyInTableSchema tail insertKey
   ) =>
   InsertKeyInTableSchema (WithIndex uniq indx tail) insertKey
+
+--
+
+class InsertKeyToIndexedValue insertKey indexedValue | insertKey -> indexedValue where
+  toIndexedValue :: IndexedValue indexedValue => insertKey -> Maybe indexedValue
+
+-- Claim the indexed value is type Int as just need to pass a Nothing to Dexie
+instance inboundToIndexedValue :: InsertKeyToIndexedValue Unit Int where
+  toIndexedValue _ = Nothing
+
+else instance incrementingToIndexedValue ::
+  ( IndexedValue v
+  ) => InsertKeyToIndexedValue (Maybe v) v where
+  toIndexedValue v = v
+
+else instance nonIncrementingToIndexedValue ::
+  ( IndexedValue v
+  ) =>
+  InsertKeyToIndexedValue v v where
+  toIndexedValue v = Just v
+
