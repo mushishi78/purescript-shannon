@@ -9,7 +9,8 @@ import Shannon.Data.Shannon (withImplicitTransactions)
 import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Index, NonIncrementing, NotUnique, OutboundPrimaryKey, WithIndex)
 import Shannon.Database (initializeDatabase)
 import Shannon.Insert (insert)
-import Shannon.MigrationBuilder (addIndex, addTable, completeMigrationDefinition, startMigrationDefinition, newVersion, setUpgrade)
+import Shannon.MigrationBuilder (addIndex, addTable, newVersion, setUpgrade)
+import Shannon.MigrationBuilder as MigrationBuilder
 import Type.Data.Peano (d2)
 import Type.Proxy (Proxy(..))
 
@@ -23,7 +24,7 @@ type MySchema =
   )
 
 migration :: MigrationDefinition MySchema
-migration = startMigrationDefinition "mydb"
+migration = MigrationBuilder.start "mydb"
   # addTable _foo_ (outbound nonIncrementing)
   # newVersion d2
   # addTable _bar_ (inbound incrementing (index _id_))
@@ -32,7 +33,7 @@ migration = startMigrationDefinition "mydb"
     ( do
         insert _foo_ 1 { id: "name" }
     )
-  # completeMigrationDefinition
+  # MigrationBuilder.end
 
 insertExample :: Aff Unit
 insertExample = do

@@ -46,7 +46,8 @@ instance inboundToIndexedValue :: InsertKeyToIndexedValue Unit Int where
 
 else instance incrementingToIndexedValue ::
   ( IndexedValue v
-  ) => InsertKeyToIndexedValue (Maybe v) v where
+  ) =>
+  InsertKeyToIndexedValue (Maybe v) v where
   toIndexedValue v = v
 
 else instance nonIncrementingToIndexedValue ::

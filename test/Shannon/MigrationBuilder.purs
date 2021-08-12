@@ -9,7 +9,8 @@ import Foreign.Object as Object
 import Shannon.Data.MigrationBuilder (getDBName, getSteps)
 import Shannon.Data.Proxy (compoundIndex, inbound, incrementing, index, nonIncrementing, notUnique, outbound)
 import Shannon.Insert (insert)
-import Shannon.MigrationBuilder (addIndex, addTable, startMigrationDefinition, newVersion, removeIndex, removeTable, setUpgrade)
+import Shannon.MigrationBuilder (addIndex, addTable, newVersion, removeIndex, removeTable, setUpgrade)
+import Shannon.MigrationBuilder as MigrationBuilder
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
 import Type.Data.Peano (d2, d5)
@@ -30,7 +31,7 @@ migrationTests = suite "migration" do
   test "can make an empty migration" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
-      migration = startMigrationDefinition "mydb"
+      migration = MigrationBuilder.start "mydb"
 
     Assert.shouldEqual (getDBName migration) "mydb"
     Assert.shouldEqual (getVersions steps) [ 0 ]
@@ -39,7 +40,7 @@ migrationTests = suite "migration" do
   test "can make a migration with some version changes" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
-      migration = startMigrationDefinition "mydb"
+      migration = MigrationBuilder.start "mydb"
         # newVersion d2
         # newVersion d5
 
@@ -49,7 +50,7 @@ migrationTests = suite "migration" do
   test "can make a migration with some tables and indexes" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
-      migration = startMigrationDefinition "mydb"
+      migration = MigrationBuilder.start "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # addIndex _foo_ notUnique (index _age_)
@@ -62,7 +63,7 @@ migrationTests = suite "migration" do
   test "can make a migration with both versions and tables and indexes" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
-      migration = startMigrationDefinition "mydb"
+      migration = MigrationBuilder.start "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # newVersion d2
@@ -77,7 +78,7 @@ migrationTests = suite "migration" do
   test "can remove an index from the end of a table schema" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
-      migration = startMigrationDefinition "mydb"
+      migration = MigrationBuilder.start "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # addIndex _foo_ notUnique (index _age_)
@@ -93,7 +94,7 @@ migrationTests = suite "migration" do
   test "can remove an index from the middle of a table schema" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
-      migration = startMigrationDefinition "mydb"
+      migration = MigrationBuilder.start "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # addIndex _foo_ notUnique (index _age_)
@@ -110,7 +111,7 @@ migrationTests = suite "migration" do
   test "can remove a table" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
-      migration = startMigrationDefinition "mydb"
+      migration = MigrationBuilder.start "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # newVersion d2
@@ -125,7 +126,7 @@ migrationTests = suite "migration" do
   test "can set upgrade effect for migration" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
-      migration = startMigrationDefinition "mydb"
+      migration = MigrationBuilder.start "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # newVersion d2

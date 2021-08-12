@@ -7,7 +7,8 @@ import Shannon.Data.Proxy (incrementing, outbound)
 import Shannon.Data.Shannon (withImplicitTransactions)
 import Shannon.Database (initializeDatabase)
 import Shannon.Insert (insert)
-import Shannon.MigrationBuilder (addTable, completeMigrationDefinition, startMigrationDefinition)
+import Shannon.MigrationBuilder (addTable)
+import Shannon.MigrationBuilder as MigrationBuilder
 import Test.Unit (TestSuite, suite, test)
 import Type.Proxy (Proxy(..))
 
@@ -20,10 +21,10 @@ _age_ = Proxy :: Proxy "age"
 databaseTests :: TestSuite
 databaseTests = suite "database" do
   test "can initialize a database" do
-    db <- initializeDatabase (
-      startMigrationDefinition "mydb"
-        # addTable _foo_ (outbound incrementing)
-        # completeMigrationDefinition
+    db <- initializeDatabase
+      ( MigrationBuilder.start "mydb"
+          # addTable _foo_ (outbound incrementing)
+          # MigrationBuilder.end
       )
 
     withImplicitTransactions db do

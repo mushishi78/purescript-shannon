@@ -26,8 +26,8 @@ import Shannon.Type.TableSchemaWithoutIndex (class TableSchemaWithoutIndex)
 import Type.Data.Peano.Nat (class CompareNat, class IsNat, D1, reflectNat)
 import Type.Proxy (Proxy(..))
 
-startMigrationDefinition :: String -> MigrationBuilder D1 () CannotUpgradeInitially
-startMigrationDefinition dbName = MigrationBuilder { dbName, steps: MigrationSteps.empty 1 }
+start :: String -> MigrationBuilder D1 () CannotUpgradeInitially
+start dbName = MigrationBuilder { dbName, steps: MigrationSteps.empty 1 }
 
 newVersion ::
   forall v1 v2 databaseSchema proxy upgradable.
@@ -145,10 +145,10 @@ setUpgrade upgrade (MigrationBuilder m) = MigrationBuilder $ updateSteps m
   newUpgrade = Just $ \db trnx -> runReaderT upgrade $ Database { db, trnx: Just trnx }
 
 -- | Used to remove type information only needed whilst defining migration
-completeMigrationDefinition ::
+end ::
   forall version databaseSchema upgradable.
   IsNat version =>
   DatabaseSchema databaseSchema =>
   MigrationBuilder version databaseSchema upgradable ->
   MigrationDefinition databaseSchema
-completeMigrationDefinition (MigrationBuilder m) = MigrationDefinition m
+end (MigrationBuilder m) = MigrationDefinition m
