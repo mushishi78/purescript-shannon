@@ -10,7 +10,7 @@ import Shannon.Data.TableSchema (type (#), InboundPrimaryKey, Incrementing, Inde
 import Shannon.Database (initializeDatabase)
 import Shannon.Insert (insert)
 import Shannon.MigrationBuilder (addIndex, addTable, completeMigrationDefinition, startMigrationDefinition, newVersion, setUpgrade)
-import Type.Data.Peano (d1)
+import Type.Data.Peano (d2)
 import Type.Proxy (Proxy(..))
 
 _foo_ = Proxy :: Proxy "foo"
@@ -25,7 +25,7 @@ type MySchema =
 migration :: MigrationDefinition MySchema
 migration = startMigrationDefinition "mydb"
   # addTable _foo_ (outbound nonIncrementing)
-  # newVersion d1
+  # newVersion d2
   # addTable _bar_ (inbound incrementing (index _id_))
   # addIndex _foo_ notUnique (index _id_)
   # setUpgrade

@@ -13,5 +13,5 @@ mapHead fn (head :| tail) = (fn head) :| tail
 cons :: MigrationStep -> MigrationSteps -> MigrationSteps
 cons newStep (head :| tail) = newStep :| head : tail
 
-empty :: MigrationSteps
-empty = singleton (MigrationStep.empty 0)
+empty :: Int -> MigrationSteps
+empty version = singleton (MigrationStep.empty version)

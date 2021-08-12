@@ -23,11 +23,11 @@ import Shannon.Type.MustHaveTable (class MustHaveTable)
 import Shannon.Type.MustNotHaveTable (class MustNotHaveTable)
 import Shannon.Type.SerializeSchema (class SerializeTableSchema, serializeTableSchema)
 import Shannon.Type.TableSchemaWithoutIndex (class TableSchemaWithoutIndex)
-import Type.Data.Peano.Nat (class CompareNat, class IsNat, D0, reflectNat)
+import Type.Data.Peano.Nat (class CompareNat, class IsNat, D1, reflectNat)
 import Type.Proxy (Proxy(..))
 
-startMigrationDefinition :: String -> MigrationBuilder D0 () CannotUpgradeInitially
-startMigrationDefinition dbName = MigrationBuilder { dbName, steps: MigrationSteps.empty }
+startMigrationDefinition :: String -> MigrationBuilder D1 () CannotUpgradeInitially
+startMigrationDefinition dbName = MigrationBuilder { dbName, steps: MigrationSteps.empty 1 }
 
 newVersion ::
   forall v1 v2 databaseSchema proxy upgradable.

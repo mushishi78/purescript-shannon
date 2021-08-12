@@ -12,7 +12,7 @@ import Shannon.Insert (insert)
 import Shannon.MigrationBuilder (addIndex, addTable, startMigrationDefinition, newVersion, removeIndex, removeTable, setUpgrade)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert as Assert
-import Type.Data.Peano (d1, d5)
+import Type.Data.Peano (d2, d5)
 import Type.Proxy (Proxy(..))
 
 _foo_ = Proxy :: Proxy "foo"
@@ -40,7 +40,7 @@ migrationTests = suite "migration" do
     let
       steps = NonEmpty.oneOf $ getSteps migration
       migration = startMigrationDefinition "mydb"
-        # newVersion d1
+        # newVersion d2
         # newVersion d5
 
     Assert.shouldEqual (getVersions steps) [ 0, 1, 5 ]
@@ -65,7 +65,7 @@ migrationTests = suite "migration" do
       migration = startMigrationDefinition "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
-        # newVersion d1
+        # newVersion d2
         # addIndex _foo_ notUnique (index _age_)
 
     Assert.shouldEqual (getVersions steps) [ 0, 1 ]
@@ -81,7 +81,7 @@ migrationTests = suite "migration" do
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # addIndex _foo_ notUnique (index _age_)
-        # newVersion d1
+        # newVersion d2
         # removeIndex _foo_ (index _age_)
 
     Assert.shouldEqual (getVersions steps) [ 0, 1 ]
@@ -98,7 +98,7 @@ migrationTests = suite "migration" do
         # addTable _bar_ (inbound nonIncrementing (index _id_))
         # addIndex _foo_ notUnique (index _age_)
         # addIndex _foo_ notUnique (compoundIndex _id_ $ index _age_)
-        # newVersion d1
+        # newVersion d2
         # removeIndex _foo_ (index _age_)
 
     Assert.shouldEqual (getVersions steps) [ 0, 1 ]
@@ -113,7 +113,7 @@ migrationTests = suite "migration" do
       migration = startMigrationDefinition "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
-        # newVersion d1
+        # newVersion d2
         # removeTable _foo_
 
     Assert.shouldEqual (getVersions steps) [ 0, 1 ]
@@ -128,7 +128,7 @@ migrationTests = suite "migration" do
       migration = startMigrationDefinition "mydb"
         # addTable _foo_ (outbound incrementing)
         # addTable _bar_ (inbound nonIncrementing (index _id_))
-        # newVersion d1
+        # newVersion d2
         # setUpgrade
           ( do
               insert _foo_ (Just 1) { id: "name" }
